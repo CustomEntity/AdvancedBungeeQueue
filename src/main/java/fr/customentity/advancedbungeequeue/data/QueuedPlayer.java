@@ -1,6 +1,5 @@
 package fr.customentity.advancedbungeequeue.data;
 
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
@@ -12,14 +11,12 @@ public class QueuedPlayer {
 
     private ProxiedPlayer proxiedPlayer;
     private ServerInfo targetServer;
+    private int priority;
 
-    public QueuedPlayer(ProxiedPlayer proxiedPlayer) {
-       this(proxiedPlayer, null);
-    }
-
-    public QueuedPlayer(ProxiedPlayer proxiedPlayer, ServerInfo targetServer) {
+    public QueuedPlayer(ProxiedPlayer proxiedPlayer, ServerInfo targetServer, int priority) {
         this.proxiedPlayer = proxiedPlayer;
         this.targetServer = targetServer;
+        this.priority = priority;
 
         queuedPlayerSet.add(this);
     }
@@ -41,14 +38,19 @@ public class QueuedPlayer {
         return this.targetServer != null;
     }
 
+    public int getPriority() {
+        return priority;
+    }
+
     public static QueuedPlayer get(ProxiedPlayer proxiedPlayer) {
         for(QueuedPlayer queuedPlayer : queuedPlayerSet) {
             if(queuedPlayer.getProxiedPlayer().equals(proxiedPlayer)) {
                 return queuedPlayer;
             }
         }
-        return new QueuedPlayer(proxiedPlayer);
+        return null;
     }
+
     public static Set<QueuedPlayer> getQueuedPlayerSet() {
         return queuedPlayerSet;
     }

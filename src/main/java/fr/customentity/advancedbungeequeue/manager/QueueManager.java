@@ -7,6 +7,9 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.*;
 
@@ -14,7 +17,7 @@ public class QueueManager {
 
     private AdvancedBungeeQueue plugin;
 
-    private ConcurrentHashMap<ServerInfo, Queue<QueuedPlayer>> queue;
+    private ConcurrentHashMap<ServerInfo, List<QueuedPlayer>> queue;
     private ScheduledExecutorService scheduledExecutorService;
     private boolean queueRunning = true;
 
@@ -24,7 +27,7 @@ public class QueueManager {
         this.scheduledExecutorService = new ScheduledThreadPoolExecutor(plugin.getConfigFile().getInt("thread-pool-size"));
 
         this.loadServersQueue();
-        for(ServerInfo serverInfo : queue.keySet()) {
+        for (ServerInfo serverInfo : queue.keySet()) {
             this.scheduledExecutorService.scheduleAtFixedRate(new ConnectRunnable(plugin, serverInfo), this.plugin.getConfigFile().getLong("queue-speed"), this.plugin.getConfigFile().getLong("queue-speed"), TimeUnit.MILLISECONDS);
         }
     }
@@ -34,19 +37,40 @@ public class QueueManager {
     }
 
     public void addPlayerInQueue(ProxiedPlayer proxiedPlayer, ServerInfo serverInfo) {
-        if(plugin.getConfigFile().getStringList("default-servers").stream().noneMatch(s -> proxiedPlayer.getServer().getInfo().getName().contains(s))) {
+        if (plugin.getConfigFile().getStringList("default-servers").stream().noneMatch(s -> proxiedPlayer.getServer().getInfo().getName().contains(s))) {
             return;
         }
-        if(proxiedPlayer.hasPermission(plugin.getConfigFile().getString("permissions.bypass"))) {
+        if (proxiedPlayer.hasPermission(plugin.getConfigFile().getString("permissions.bypass"))) {
             proxiedPlayer.connect(serverInfo);
             return;
         }
-        Queue<QueuedPlayer> queuedPlayers = queue.get(serverInfo);
-        QueuedPlayer queuedPlayer = QueuedPlayer.get(proxiedPlayer);
-        if(queuedPlayer.isWaiting())return;
+        List<QueuedPlayer> queuedPlayers = queue.get(serverInfo);
+        if (this.plugin.getConfigFile().getBoolean("use-same-queue")) queuedPlayers = queue.values().stream().findFirst().get();
+        if(queuedPlayers == null)return;
+        
+        QueuedPlayer queuedPlayer = new QueuedPlayer(proxiedPlayer, serverInfo, getPriority(proxiedPlayer));
+        if (queuedPlayer.isWaiting()) return;
         queuedPlayer.setTargetServer(serverInfo);
-        queuedPlayers.add(queuedPlayer);
-        queue.put(serverInfo, queuedPlayers);
+
+        for(QueuedPlayer player : queuedPlayers) {
+            if(player.getPriority() <= queuedPlayer.getPriority()) {
+                queuedPlayers.add(queuedPlayers.indexOf(player), queuedPlayer);
+            }
+        }
+    }
+
+    public int getPriority(ProxiedPlayer proxiedPlayer) {
+        for(String str : plugin.getConfigFile().getSection("priorities").getKeys()) {
+            if(proxiedPlayer.hasPermission("advancedbungeequeue.priority." + str)) return plugin.getConfigFile().getInt("priorities." + str);
+        }
+        return plugin.getConfigFile().getInt("priorities.default", 0);
+    }
+
+    public int getPlayerPosition(ProxiedPlayer proxiedPlayer) {
+        QueuedPlayer queuedPlayer = QueuedPlayer.get(proxiedPlayer);
+        if (queue.get(queuedPlayer.getTargetServer()) != null)
+            return queue.get(queuedPlayer.getTargetServer()).indexOf(queuedPlayer) + 1;
+        return -1;
     }
 
     public void setQueueRunning(boolean queueRunning) {
@@ -54,12 +78,12 @@ public class QueueManager {
     }
 
     public void connectNextPlayers(ServerInfo serverInfo) {
-        for(int i = 0; i < plugin.getConfigFile().getInt("player-amount"); i++) {
-            Queue<QueuedPlayer> queuedPlayers = queue.get(serverInfo);
-            QueuedPlayer queuedPlayer = queuedPlayers.peek();
-            if(queuedPlayer == null)continue;
+        for (int i = 0; i < plugin.getConfigFile().getInt("player-amount"); i++) {
+            List<QueuedPlayer> queuedPlayers = queue.get(serverInfo);
+            QueuedPlayer queuedPlayer = queuedPlayers.get(0);
+            if (queuedPlayer == null) continue;
             queuedPlayer.getProxiedPlayer().connect(serverInfo, (result, error) -> {
-                if(result) {
+                if (result) {
                     queuedPlayers.remove(queuedPlayer);
                 } else {
 
@@ -72,13 +96,13 @@ public class QueueManager {
         for (String servers : this.plugin.getConfigFile().getStringList("queued-servers")) {
             ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(servers);
             if (serverInfo != null) {
-                queue.putIfAbsent(serverInfo, new ConcurrentLinkedQueue<>());
+                queue.putIfAbsent(serverInfo, Collections.synchronizedList(new ArrayList<>()));
                 if (!this.plugin.getConfigFile().getBoolean("use-same-queue")) break;
             }
         }
     }
 
-    public ConcurrentHashMap<ServerInfo, Queue<QueuedPlayer>> getQueues() {
+    public ConcurrentHashMap<ServerInfo, List<QueuedPlayer>> getQueues() {
         return queue;
     }
 }

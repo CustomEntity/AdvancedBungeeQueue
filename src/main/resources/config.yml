@@ -1,0 +1,22 @@
+locale: en
+
+#In miliseconds
+queue-speed: 2000
+player-amount: 2
+thread-pool-size: 4
+use-same-queue: false
+default-servers:
+  - "lobby"
+queued-servers:
+  - "faction"
+  - "invest"
+permissions:
+  join-queue-command: "advancedbungeequeue.command.join"
+  bypass: "advancedbungeequeue.bypass"
+
+# Permission: advancedbungeequeue.priority.high
+priorities:
+  high: 4
+  medium: 3
+  low: 2
+  default: 1

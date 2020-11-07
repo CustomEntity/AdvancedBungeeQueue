@@ -1,0 +1,5 @@
+name: AdvancedBungeeQueue
+version: @version@
+main: fr.customentity.advancedbungeequeue.AdvancedBungeeQueue
+description: An advanced queuing system for minecraft servers
+author: CustomEntity

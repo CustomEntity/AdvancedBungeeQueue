@@ -49,6 +49,10 @@ public class AdvancedBungeeQueue extends Plugin {
         this.socketManager.initListener();
     }
 
+    public SocketManager getSocketManager() {
+        return socketManager;
+    }
+
     public I18n getI18n() {
         return i18n;
     }

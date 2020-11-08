@@ -45,7 +45,7 @@ public class SocketManager {
         }
     }
 
-    public void sendConnectedMessage(int serverPort, UUID uuid) {
+    public void sendConnectingMessage(int serverPort, UUID uuid) {
         Thread thread = new Thread(() -> {
             Socket client;
             try {

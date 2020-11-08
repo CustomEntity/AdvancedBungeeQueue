@@ -8,6 +8,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -139,7 +140,7 @@ public class QueueManager {
                     queuedPlayer.setConnecting(true);
                     queuedPlayer.getProxiedPlayer().connect(serverInfo, (result, error) -> {
                         if (result) {
-
+                            plugin.getSocketManager().sendConnectingMessage(serverInfo.getAddress().getPort(), queuedPlayer.getUuid());
                             System.out.println("CONNECTING PLAYER: " + queuedPlayer.getProxiedPlayer().getName() + " REMAIN: " + queue.get(serverInfo).size());
                         } else {
                             queuedPlayer.setConnecting(false);

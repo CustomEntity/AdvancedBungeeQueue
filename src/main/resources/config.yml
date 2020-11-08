@@ -3,6 +3,7 @@ locale: en
 #In miliseconds
 queue-speed: 2000
 player-amount: 2
+socket-port: 1233
 thread-pool-size: 4
 use-same-queue: false
 default-servers:
@@ -12,11 +13,14 @@ queued-servers:
   - "invest"
 permissions:
   join-queue-command: "advancedbungeequeue.command.join"
+  pause-queue-command: "advancedbungeequeue.command.pause"
+  unpause-queue-command: "advancedbungeequeue.command.unpause"
+  on-queue-command: "advancedbungeequeue.command.on"
+  off-queue-command: "advancedbungeequeue.command.off"
   bypass: "advancedbungeequeue.bypass"
 
 # Permission: advancedbungeequeue.priority.high
 priorities:
-  high: 4
-  medium: 3
-  low: 2
-  default: 1
+  High: 3
+  Medium: 2
+  Low: 1

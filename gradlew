@@ -82,7 +82,7 @@ esac
 
 CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
 
-# Determine the Java command to use to start the JVM.
+# Determine the Java fr.customentity.advancedbungeequeue.command to use to start the JVM.
 if [ -n "$JAVA_HOME" ] ; then
     if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
         # IBM's JDK on AIX uses strange locations for the executables
@@ -177,7 +177,7 @@ save () {
 }
 APP_ARGS=$(save "$@")
 
-# Collect all arguments for the java command, following the shell quoting and substitution rules
+# Collect all arguments for the java fr.customentity.advancedbungeequeue.command, following the shell quoting and substitution rules
 eval set -- $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS "\"-Dorg.gradle.appname=$APP_BASE_NAME\"" -classpath "\"$CLASSPATH\"" org.gradle.wrapper.GradleWrapperMain "$APP_ARGS"
 
 # by default we should be in the correct project dir, but when run from Finder on Mac, the cwd is wrong

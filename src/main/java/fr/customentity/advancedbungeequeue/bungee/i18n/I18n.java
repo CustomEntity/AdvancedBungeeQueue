@@ -1,6 +1,6 @@
-package fr.customentity.advancedbungeequeue.i18n;
+package fr.customentity.advancedbungeequeue.bungee.i18n;
 
-import fr.customentity.advancedbungeequeue.AdvancedBungeeQueue;
+import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 
 import java.util.List;
 import java.util.Locale;

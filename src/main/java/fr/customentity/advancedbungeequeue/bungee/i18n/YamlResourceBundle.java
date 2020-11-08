@@ -1,12 +1,15 @@
-package fr.customentity.advancedbungeequeue.i18n;
+package fr.customentity.advancedbungeequeue.bungee.i18n;
 
-import fr.customentity.advancedbungeequeue.AdvancedBungeeQueue;
+import com.google.common.base.Charsets;
+import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
@@ -44,15 +47,14 @@ public class YamlResourceBundle {
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdir();
         }
-
-        yamlFile = new File(plugin.getDataFolder(), this.fileName);
-        if (!yamlFile.exists()) {
-            try {
+        try {
+            yamlFile = new File(plugin.getDataFolder(), this.fileName);
+            if (!yamlFile.exists()) {
                 Files.copy(plugin.getResourceAsStream(this.fileName), yamlFile.toPath());
-                yamlConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(yamlFile);
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+            yamlConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new InputStreamReader(new FileInputStream(yamlFile), Charsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -74,12 +76,13 @@ public class YamlResourceBundle {
     }
 
     public String getString(String path, boolean useCacheIfPresent) {
-        if(useCacheIfPresent)return cachedResourceContent.getOrDefault(path, Collections.singletonList(yamlConfig.getString(path))).get(0);
+        if (useCacheIfPresent)
+            return cachedResourceContent.getOrDefault(path, Collections.singletonList(yamlConfig.getString(path))).get(0);
         return yamlConfig.getString(path);
     }
 
     public List<String> getStringList(String path, boolean useCacheIfPresent) {
-        if(useCacheIfPresent)return cachedResourceContent.getOrDefault(path, yamlConfig.getStringList(path));
+        if (useCacheIfPresent) return cachedResourceContent.getOrDefault(path, yamlConfig.getStringList(path));
         return yamlConfig.getStringList(path);
     }
 

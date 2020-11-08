@@ -1,0 +1,5 @@
+name: Spigot
+version: @version@
+main: fr.customentity.spigot.Spigot
+api-version: 1.16
+authors: [ CustomEntity ]

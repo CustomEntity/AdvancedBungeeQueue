@@ -1,6 +1,6 @@
-package fr.customentity.advancedbungeequeue.runnable;
+package fr.customentity.advancedbungeequeue.bungee.runnable;
 
-import fr.customentity.advancedbungeequeue.AdvancedBungeeQueue;
+import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import net.md_5.bungee.api.config.ServerInfo;
 
 public class ConnectRunnable implements Runnable {
@@ -15,7 +15,7 @@ public class ConnectRunnable implements Runnable {
 
     @Override
     public void run() {
-        if(!plugin.getQueueManager().isQueueRunning()) {
+        if (plugin.getQueueManager().isPaused()) {
             return;
         }
         plugin.getQueueManager().connectNextPlayers(serverInfo);

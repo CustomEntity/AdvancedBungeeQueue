@@ -1,1 +1,34 @@
-prefix: "Queue >"
+prefix: "&6&lQueue &7»"
+help:
+  - "&6«&6&m-&e&m-----------------------------------------&6&m-&6»"
+  - "                  &f✦ &e&lAdvancedBungeeQueue &f✦"
+  - " "
+  - " &6● &e/queue on &8- &7Turn on the queue"
+  - " &6● &e/queue off &8- &7Turn off the queue"
+  - " &6● &e/queue pause &8- &7Pause the queue"
+  - " &6● &e/queue unpause &8- &7Unpause the queue"
+  - " "
+  - "&6«&6&m-&e&m-----------------------------------------&6&m-&6»"
+commands:
+  no-permission: "%prefix% &cYou don't have permission to execute that &ccommand !"
+  join:
+    syntax: "%prefix% &cPlease use: /queue join <server>"
+    success: "%prefix% &eYou have successfully joined the queue! You &eare currently &6%position%&7/&6%all% &ein the queue. &bPriority: &6%priority%"
+    cannot-join-queue: "%prefix% &cYou cannot join queue in this server!"
+    server-doesnt-exist: "%prefix% &cServer doesn't exist"
+  on:
+    success: "%prefix% &eThe queue has been &aenabled&e!"
+    error: "%prefix% &cThe queue is already enabled!"
+  off:
+    success: "%prefix% &eThe queue has been &cdisabled&e!"
+    error: "%prefix% &cThe queue is already &cdisabled!"
+  pause:
+    success: "%prefix% &eThe queue has been paused!"
+    error: "%prefix% &cThe queue is already paused!"
+  unpause:
+    success: "%prefix% &eThe queue has been unpaused!"
+    error: "%prefix% &cThe queue is already unpaused!"
+general:
+  repeating-position-message: "%actionbar%&eYou are currently &6%position%&7/&6%all% &ein the queue. &bPriority: &6%priority%"
+  unavailable-server: "%title%&c✖ Server Not Available ✖"
+  full-server: "%title%&c✖ Server is Full ✖%subtitle%&cPlease wait a few moments."

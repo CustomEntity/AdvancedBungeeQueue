@@ -1,13 +1,12 @@
-package fr.customentity.advancedbungeequeue;
+package fr.customentity.advancedbungeequeue.bungee;
 
-import fr.customentity.advancedbungeequeue.command.QueueCommand;
-import fr.customentity.advancedbungeequeue.i18n.I18n;
-import fr.customentity.advancedbungeequeue.i18n.YamlResourceBundle;
-import fr.customentity.advancedbungeequeue.manager.QueueManager;
-import net.md_5.bungee.api.ChatColor;
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.Title;
+import fr.customentity.advancedbungeequeue.bungee.command.QueueCommand;
+import fr.customentity.advancedbungeequeue.bungee.i18n.I18n;
+import fr.customentity.advancedbungeequeue.bungee.i18n.YamlResourceBundle;
+import fr.customentity.advancedbungeequeue.bungee.listener.QueueListener;
+import fr.customentity.advancedbungeequeue.bungee.manager.QueueManager;
+import fr.customentity.advancedbungeequeue.bungee.socket.SocketManager;
+import net.md_5.bungee.api.*;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -15,11 +14,11 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
-import javax.xml.soap.Text;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class AdvancedBungeeQueue extends Plugin {
 
@@ -27,6 +26,7 @@ public class AdvancedBungeeQueue extends Plugin {
 
     private File file;
     private Configuration configFile;
+    private SocketManager socketManager;
 
     private I18n i18n;
 
@@ -37,6 +37,16 @@ public class AdvancedBungeeQueue extends Plugin {
 
         this.queueManager = new QueueManager(this);
         this.getProxy().getPluginManager().registerCommand(this, new QueueCommand(this));
+        this.getProxy().getPluginManager().registerListener(this, new QueueListener(this));
+
+        this.getProxy().getScheduler().schedule(this, () -> queueManager.getQueues().forEach((serverInfo, queuedPlayers) -> queuedPlayers.forEach(queuedPlayer -> this.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.repeating-position-message",
+                "%all%", queuedPlayers.size() + "",
+                "%position%", queuedPlayers.indexOf(queuedPlayer) + 1 + "",
+                "%priority%", queuedPlayer.getPriority().getName()
+        ))), 1, 1, TimeUnit.SECONDS);
+
+        this.socketManager = new SocketManager(this);
+        this.socketManager.initListener();
     }
 
     public I18n getI18n() {
@@ -49,7 +59,6 @@ public class AdvancedBungeeQueue extends Plugin {
                 this.getDataFolder().mkdirs();
 
             file = new File(this.getDataFolder(), "config.yml");
-
             if (!file.exists()) {
                 Files.copy(getResourceAsStream("config.yml"), file.toPath());
             }
@@ -72,8 +81,7 @@ public class AdvancedBungeeQueue extends Plugin {
         return queueManager;
     }
 
-    public void sendConfigMessage(ProxiedPlayer player, String path, String... replace) {
-        AdvancedBungeeQueue advancedBungeeQueue = (AdvancedBungeeQueue) ProxyServer.getInstance().getPluginManager().getPlugin("AdvancedBungeeQueue");
+    public void sendConfigMessage(CommandSender sender, String path, String... replace) {
         HashMap<String, String> replaced = new HashMap<>();
         List<String> replaceList = Arrays.asList(replace);
         int index = 0;
@@ -83,22 +91,24 @@ public class AdvancedBungeeQueue extends Plugin {
             replaced.put(str, replaceList.get(index));
         }
         Optional<YamlResourceBundle> yamlResourceBundleOptional = i18n.getYamlResourceBundleByLang(getConfigFile().getString("locale"));
-        if(yamlResourceBundleOptional.isPresent()) {
+        if (yamlResourceBundleOptional.isPresent()) {
             YamlResourceBundle yamlResourceBundle = yamlResourceBundleOptional.get();
             List<String> messages = yamlResourceBundle.getYamlConfig().get(path) instanceof List ? yamlResourceBundle.getStringList(path) : Collections.singletonList(yamlResourceBundle.getString(path));
 
-           messages.forEach(s -> sendConfigMessage(player, s, replaced));
+            messages.forEach(s -> sendConfigMessage(sender, s, replaced));
         }
     }
 
-    private void sendConfigMessage(ProxiedPlayer player, String configMessage, HashMap<String, String> replaced) {
-        String message = ChatColor.translateAlternateColorCodes('&', configMessage.replace("%name%", player.getName()).replace("%prefix%", i18n.getString("prefix")));
+    private void sendConfigMessage(CommandSender sender, String configMessage, HashMap<String, String> replaced) {
+        String message = ChatColor.translateAlternateColorCodes('&', configMessage.replace("%name%", sender.getName()).replace("%prefix%", i18n.getString("prefix")));
         if (message.isEmpty()) return;
 
         for (Map.Entry<String, String> stringEntry : replaced.entrySet()) {
             message = message.replace(stringEntry.getKey(), stringEntry.getValue());
         }
         if (message.toLowerCase().startsWith("%title%")) {
+            if(!(sender instanceof ProxiedPlayer))return;
+            ProxiedPlayer player = (ProxiedPlayer)sender;
             Title title = ProxyServer.getInstance().createTitle();
 
             title.fadeIn(0);
@@ -109,11 +119,14 @@ public class AdvancedBungeeQueue extends Plugin {
                 String[] splitted = message.split("%subtitle%");
                 title.title(new TextComponent(splitted[0].replaceAll("(?i)%subtitle%", "").replaceAll("(?i)%title%", "")));
                 title.subTitle(new TextComponent(splitted[1].replaceAll("(?i)%subtitle%", "").replaceAll("(?i)%title%", "")));
-                title.send(player);
             } else {
                 title.title(new TextComponent(message.replaceAll("(?i)%title%", "")));
+                title.subTitle(new TextComponent(""));
             }
+            title.send(player);
         } else if (message.toLowerCase().startsWith("%subtitle%")) {
+            if(!(sender instanceof ProxiedPlayer))return;
+            ProxiedPlayer player = (ProxiedPlayer)sender;
             Title title = ProxyServer.getInstance().createTitle();
 
             title.fadeIn(0);
@@ -125,11 +138,15 @@ public class AdvancedBungeeQueue extends Plugin {
                 title.subTitle(new TextComponent(splitted[0].replaceAll("(?i)%subtitle%", "").replaceAll("(?i)%title%", "")));
             } else {
                 title.subTitle(new TextComponent(message.replaceAll("(?i)%subtitle%", "")));
+                title.title(new TextComponent(""));
             }
+            title.send(player);
         } else if (message.toLowerCase().startsWith("%actionbar%")) {
+            if(!(sender instanceof ProxiedPlayer))return;
+            ProxiedPlayer player = (ProxiedPlayer)sender;
             player.sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(message.replaceAll("(?i)%actionbar%", "")));
         } else {
-            player.sendMessage(new TextComponent(message));
+            sender.sendMessage(new TextComponent(message));
         }
     }
 }

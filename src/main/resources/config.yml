@@ -4,6 +4,7 @@ locale: en
 queue-speed: 2000
 player-amount: 2
 socket-port: 1233
+socket-password: "TOABSOLUTELYCHANGE"
 thread-pool-size: 4
 use-same-queue: false
 default-servers:

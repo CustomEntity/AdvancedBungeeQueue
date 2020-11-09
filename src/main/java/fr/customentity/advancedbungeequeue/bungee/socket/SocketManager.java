@@ -2,6 +2,7 @@ package fr.customentity.advancedbungeequeue.bungee.socket;
 
 import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import fr.customentity.advancedbungeequeue.spigot.AdvancedSpigotQueue;
+import net.md_5.bungee.api.ProxyServer;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,47 +25,28 @@ public class SocketManager {
     public void initListener() {
         int port = plugin.getConfigFile().getInt("socket-port");
         try {
-            plugin.getLogger().log(Level.INFO, "Trying to connect on port " + port + "...");
+            plugin.log(Level.INFO, "Trying to connect on port " + port + "...");
             socket = new ServerSocket(port);
             Thread thread = new Thread(() -> {
                 try {
+                    plugin.log(Level.INFO, "Connected on port " + port);
                     while (!socket.isClosed()) {
                         Socket client = socket.accept();
                         client.setKeepAlive(true);
 
-                        new ServerThread(plugin, client);
+                        ServerThread serverThread = new ServerThread(plugin, client);
+                        serverThread.start();
                     }
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
             thread.start();
         } catch (IOException e) {
-            plugin.getLogger().log(Level.WARNING, "Cannot connect to port: " + port + "");
+            plugin.log(Level.WARNING, "Cannot connect to port: " + port + "");
             e.printStackTrace();
         }
-    }
-
-    public void sendConnectingMessage(int serverPort, UUID uuid) {
-        Thread thread = new Thread(() -> {
-            Socket client;
-            try {
-                client = new Socket("localhost", plugin.getConfigFile().getInt("socket-port"));
-                OutputStream out = client.getOutputStream();
-                PrintWriter writer = new PrintWriter(out);
-                writer.write(serverPort + "");
-                writer.write(uuid.toString());
-                writer.flush();
-                writer.close();
-                client.close();
-            } catch (UnknownHostException e) {
-                plugin.getLogger().log(Level.SEVERE, "Failed to connect to the server.");
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-        thread.start();
     }
 
     public ServerSocket getSocket() {

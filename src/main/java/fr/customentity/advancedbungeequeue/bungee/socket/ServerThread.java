@@ -2,13 +2,15 @@ package fr.customentity.advancedbungeequeue.bungee.socket;
 
 import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import fr.customentity.advancedbungeequeue.bungee.data.QueuedPlayer;
+import fr.customentity.advancedbungeequeue.common.QueueResult;
 import fr.customentity.advancedbungeequeue.spigot.AdvancedSpigotQueue;
+import net.md_5.bungee.api.ProxyServer;
+import net.md_5.bungee.api.scheduler.TaskScheduler;
 import org.bukkit.Bukkit;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Proxy;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,18 +29,32 @@ public class ServerThread extends Thread {
     public void run() {
         try {
             InputStream in = client.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            ObjectInputStream reader = new ObjectInputStream(in);
 
-            String port = reader.readLine();
-            if(port.equalsIgnoreCase("bungee")) {
-                UUID uuid = UUID.fromString(reader.readLine());
+            String passwd = reader.readUTF();
+            if(plugin.getConfigFile().getString("socket-password").equals(passwd)) {
+                UUID uuid = UUID.fromString(reader.readUTF());
+                QueueResult result = QueueResult.valueOf(reader.readUTF());
+
                 Optional<QueuedPlayer> queuedPlayer = QueuedPlayer.get(uuid);
-                queuedPlayer.ifPresent(queuedPlayer1 -> plugin.getQueueManager().removePlayerFromQueue(queuedPlayer1));
+                if (result == QueueResult.ALLOWED) {
+                    queuedPlayer.ifPresent(queuedPlayer1 -> plugin.getQueueManager().removePlayerFromQueue(queuedPlayer1));
+                } else if(result == QueueResult.KICK_WHITELIST) {
+                    queuedPlayer.ifPresent(queuedPlayer1 -> plugin.sendConfigMessage(queuedPlayer1.getProxiedPlayer(), "general.kick-whitelisted"));
+                } else if(result == QueueResult.KICK_FULL) {
+                    queuedPlayer.ifPresent(queuedPlayer1 -> plugin.sendConfigMessage(queuedPlayer1.getProxiedPlayer(), "general.kick-full-server"));
+                }else if(result == QueueResult.KICK_BANNED) {
+                    queuedPlayer.ifPresent(queuedPlayer1 -> plugin.sendConfigMessage(queuedPlayer1.getProxiedPlayer(), "general.kick-banned"));
+                } else if(result == QueueResult.KICK_OTHER) {
+                    queuedPlayer.ifPresent(queuedPlayer1 -> plugin.sendConfigMessage(queuedPlayer1.getProxiedPlayer(), "general.kick-unavailable-server"));
+                }
             }
 
             in.close();
             reader.close();
             client.close();
+
+            this.interrupt();
         } catch (IOException e) {
             e.printStackTrace();
         }

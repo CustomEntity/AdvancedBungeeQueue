@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class AdvancedBungeeQueue extends Plugin {
 
@@ -39,6 +41,8 @@ public class AdvancedBungeeQueue extends Plugin {
         this.getProxy().getPluginManager().registerCommand(this, new QueueCommand(this));
         this.getProxy().getPluginManager().registerListener(this, new QueueListener(this));
 
+        this.getProxy().registerChannel("AdvancedBungeeQueue");
+
         this.getProxy().getScheduler().schedule(this, () -> queueManager.getQueues().forEach((serverInfo, queuedPlayers) -> queuedPlayers.forEach(queuedPlayer -> this.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.repeating-position-message",
                 "%all%", queuedPlayers.size() + "",
                 "%position%", queuedPlayers.indexOf(queuedPlayer) + 1 + "",
@@ -51,6 +55,10 @@ public class AdvancedBungeeQueue extends Plugin {
 
     public SocketManager getSocketManager() {
         return socketManager;
+    }
+
+    public void log(Level level, String message) {
+        Logger.getLogger(this.getDescription().getName()).log(level, message);
     }
 
     public I18n getI18n() {
@@ -74,7 +82,11 @@ public class AdvancedBungeeQueue extends Plugin {
 
     @Override
     public void onDisable() {
-
+        try {
+            this.getSocketManager().getSocket().close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public Configuration getConfigFile() {
@@ -153,4 +165,5 @@ public class AdvancedBungeeQueue extends Plugin {
             sender.sendMessage(new TextComponent(message));
         }
     }
+
 }

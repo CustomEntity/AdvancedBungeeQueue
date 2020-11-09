@@ -4,15 +4,13 @@ import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import fr.customentity.advancedbungeequeue.bungee.data.Priority;
 import fr.customentity.advancedbungeequeue.bungee.data.QueuedPlayer;
 import fr.customentity.advancedbungeequeue.bungee.runnable.ConnectRunnable;
+import fr.customentity.advancedbungeequeue.common.QueueResult;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -125,26 +123,21 @@ public class QueueManager {
             if (queuedPlayer == null) continue;
             serverInfo.ping((serverPing, pingError) -> {
                 if (serverPing == null) {
-                    plugin.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.unavailable-server");
+                    plugin.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.kick-unavailable-server");
                 } else {
                     int online = serverPing.getPlayers().getOnline();
                     int max = serverPing.getPlayers().getMax();
 
                     if (online >= max) {
                         if (queuedPlayers.indexOf(queuedPlayer) == 0) {
-                            plugin.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.full-server");
-
+                            plugin.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.kick-full-server");
                         }
                         return;
                     }
                     queuedPlayer.setConnecting(true);
                     queuedPlayer.getProxiedPlayer().connect(serverInfo, (result, error) -> {
-                        if (result) {
-                            plugin.getSocketManager().sendConnectingMessage(serverInfo.getAddress().getPort(), queuedPlayer.getUuid());
-                            System.out.println("CONNECTING PLAYER: " + queuedPlayer.getProxiedPlayer().getName() + " REMAIN: " + queue.get(serverInfo).size());
-                        } else {
+                        if(!result) {
                             queuedPlayer.setConnecting(false);
-                            System.out.println("ERROR WHILE CONNECTING PLAYER: " + queuedPlayer.getProxiedPlayer().getName());
                         }
                     }, ServerConnectEvent.Reason.PLUGIN);
                 }
@@ -158,7 +151,7 @@ public class QueueManager {
             ServerInfo serverInfo = this.plugin.getProxy().getServerInfo(servers);
             if (serverInfo != null) {
                 queue.putIfAbsent(serverInfo, Collections.synchronizedList(new ArrayList<>()));
-                plugin.getLogger().log(Level.INFO, "Queue enabled for server: " + serverInfo.getName());
+                plugin.log(Level.INFO, "Queue enabled for server: " + serverInfo.getName());
                 if (!this.plugin.getConfigFile().getBoolean("use-same-queue")) break;
             }
         }

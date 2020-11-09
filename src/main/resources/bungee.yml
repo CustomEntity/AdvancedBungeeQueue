@@ -1,3 +1,3 @@
-name: Bungee
+name: AdvancedBungeeQueue
 version: @version@
-main: fr.customentity.bungee.Bungee
+main: fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue

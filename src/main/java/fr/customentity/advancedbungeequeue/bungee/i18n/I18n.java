@@ -1,5 +1,6 @@
 package fr.customentity.advancedbungeequeue.bungee.i18n;
 
+
 import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 
 import java.util.List;

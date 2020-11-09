@@ -21,7 +21,7 @@ public class QueueCommand extends Command {
             plugin.sendConfigMessage(sender, "help");
         } else {
             if (args[0].equalsIgnoreCase("join")) {
-                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.join-queue-fr.customentity.advancedbungeequeue.command"))) {
+                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.join-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
@@ -40,7 +40,7 @@ public class QueueCommand extends Command {
 
                 plugin.getQueueManager().addPlayerInQueue(proxiedPlayer, serverInfo);
             } else if(args[0].equalsIgnoreCase("on")) {
-                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.on-queue-fr.customentity.advancedbungeequeue.command"))) {
+                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.on-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
@@ -51,7 +51,7 @@ public class QueueCommand extends Command {
                 plugin.getQueueManager().setEnabled(true);
                 plugin.sendConfigMessage(sender, "commands.on.success");
             } else if(args[0].equalsIgnoreCase("off")) {
-                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.off-queue-fr.customentity.advancedbungeequeue.command"))) {
+                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.off-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
@@ -62,7 +62,7 @@ public class QueueCommand extends Command {
                 plugin.getQueueManager().setEnabled(false);
                 plugin.sendConfigMessage(sender, "commands.off.success");
             } else if(args[0].equalsIgnoreCase("pause")) {
-                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.pause-queue-fr.customentity.advancedbungeequeue.command"))) {
+                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.pause-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
@@ -73,7 +73,7 @@ public class QueueCommand extends Command {
                 plugin.getQueueManager().setPaused(true);
                 plugin.sendConfigMessage(sender, "commands.pause.success");
             }else if(args[0].equalsIgnoreCase("unpause")) {
-                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.unpause-queue-fr.customentity.advancedbungeequeue.command"))) {
+                if(!sender.hasPermission(plugin.getConfigFile().getString("permissions.unpause-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }

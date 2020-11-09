@@ -1,5 +1,8 @@
 package fr.customentity.advancedbungeequeue.spigot;
 
+import fr.customentity.advancedbungeequeue.common.QueueResult;
+import org.bukkit.event.player.PlayerLoginEvent;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,39 +19,16 @@ public class SocketManager {
         this.plugin = plugin;
     }
 
-    public void initListener() {
-        int port = plugin.getConfig().getInt("socket-port");
-        try {
-            plugin.getLogger().log(Level.INFO, "Trying to connect on port " + port + "...");
-            socket = new ServerSocket(port);
-            Thread thread = new Thread(() -> {
-                try {
-                    while (!socket.isClosed()) {
-                        Socket client = socket.accept();
-                        client.setKeepAlive(true);
-
-                        new ServerThread(plugin, client);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            });
-            thread.start();
-        } catch (IOException e) {
-            plugin.getLogger().log(Level.WARNING, "Cannot connect to port: " + port + "");
-            e.printStackTrace();
-        }
-    }
-
-    public void sendConnectedMessage(UUID uuid) {
+    public void sendConnectedMessage(UUID uuid, QueueResult result) {
         Thread thread = new Thread(() -> {
             Socket client;
             try {
                 client = new Socket("localhost", plugin.getConfig().getInt("socket-port"));
                 OutputStream out = client.getOutputStream();
-                PrintWriter writer = new PrintWriter(out);
-                writer.write("bungee");
-                writer.write(uuid.toString());
+                ObjectOutputStream writer = new ObjectOutputStream(out);
+                writer.writeUTF(plugin.getConfig().getString("socket-password", "TOABSOLUTELYCHANGE"));
+                writer.writeUTF(uuid.toString());
+                writer.writeUTF(result.name());
                 writer.flush();
                 writer.close();
                 client.close();

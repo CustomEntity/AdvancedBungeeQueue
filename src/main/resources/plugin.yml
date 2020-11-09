@@ -1,5 +1,7 @@
-name: Spigot
+name: AdvancedBungeeQueue
 version: @version@
-main: fr.customentity.spigot.Spigot
+main: fr.customentity.advancedbungeequeue.spigot.AdvancedSpigotQueue
 api-version: 1.16
 authors: [ CustomEntity ]
+commands:
+  queue:

@@ -30,5 +30,7 @@ commands:
     error: "%prefix% &cThe queue is already unpaused!"
 general:
   repeating-position-message: "%actionbar%&eYou are currently &6%position%&7/&6%all% &ein the queue. &bPriority: &6%priority%"
-  unavailable-server: "%title%&c✖ Server Not Available ✖"
-  full-server: "%title%&c✖ Server is Full ✖%subtitle%&cPlease wait a few moments."
+  kick-unavailable-server: "%title%&c✖ Server Not Available ✖"
+  kick-full-server: "%title%&c✖ Server is Full ✖%subtitle%&cPlease wait a few moments."
+  kick-whitelisted: "%title%&c✖ Server is Whitelisted ✖"
+  kick-banned: "%title%&c✖ You are banned from this server ✖"

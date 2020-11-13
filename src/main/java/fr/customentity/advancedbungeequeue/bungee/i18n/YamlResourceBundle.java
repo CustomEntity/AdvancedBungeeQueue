@@ -6,16 +6,16 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.ConfigurationProvider;
 import net.md_5.bungee.config.YamlConfiguration;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.logging.Level;
 
 public class YamlResourceBundle {
 
@@ -50,7 +50,7 @@ public class YamlResourceBundle {
         try {
             yamlFile = new File(plugin.getDataFolder(), this.fileName);
             if (!yamlFile.exists()) {
-                Files.copy(plugin.getResourceAsStream(this.fileName), yamlFile.toPath());
+                plugin.saveResource(this.fileName, true);
             }
             yamlConfig = ConfigurationProvider.getProvider(YamlConfiguration.class).load(new InputStreamReader(new FileInputStream(yamlFile), Charsets.UTF_8));
         } catch (IOException e) {

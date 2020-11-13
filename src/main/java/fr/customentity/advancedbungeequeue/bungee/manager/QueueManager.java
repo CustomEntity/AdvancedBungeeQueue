@@ -11,10 +11,7 @@ import net.md_5.bungee.api.event.ServerConnectEvent;
 
 import java.net.InetSocketAddress;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 
 public class QueueManager {
@@ -23,6 +20,8 @@ public class QueueManager {
 
     private ConcurrentHashMap<ServerInfo, List<QueuedPlayer>> queue;
     private ScheduledExecutorService scheduledExecutorService;
+    private List<ScheduledFuture<?>> scheduledFutures;
+
     private boolean paused = false;
     private boolean enabled = true;
 
@@ -30,10 +29,15 @@ public class QueueManager {
         this.plugin = plugin;
         this.queue = new ConcurrentHashMap<>();
         this.scheduledExecutorService = new ScheduledThreadPoolExecutor(plugin.getConfigFile().getInt("thread-pool-size"));
+        this.scheduledFutures = new ArrayList<>();
 
+        this.startQueue();
+    }
+
+    public void startQueue() {
         this.loadServersQueue();
         for (ServerInfo serverInfo : queue.keySet()) {
-            this.scheduledExecutorService.scheduleAtFixedRate(new ConnectRunnable(plugin, serverInfo), this.plugin.getConfigFile().getLong("queue-speed"), this.plugin.getConfigFile().getLong("queue-speed"), TimeUnit.MILLISECONDS);
+            this.scheduledFutures.add(this.scheduledExecutorService.scheduleAtFixedRate(new ConnectRunnable(plugin, serverInfo), this.plugin.getConfigFile().getLong("queue-speed"), this.plugin.getConfigFile().getLong("queue-speed"), TimeUnit.MILLISECONDS));
         }
     }
 
@@ -46,8 +50,12 @@ public class QueueManager {
     }
 
     public void setEnabled(boolean enabled) {
-        if (!enabled) queue.clear();
-        else loadServersQueue();
+        if (!enabled) {
+            queue.clear();
+            this.scheduledFutures.forEach(scheduledFuture -> scheduledFuture.cancel(true));
+        } else {
+            this.startQueue();
+        }
         this.enabled = enabled;
     }
 
@@ -136,7 +144,7 @@ public class QueueManager {
                     }
                     queuedPlayer.setConnecting(true);
                     queuedPlayer.getProxiedPlayer().connect(serverInfo, (result, error) -> {
-                        if(!result) {
+                        if (!result) {
                             queuedPlayer.setConnecting(false);
                         }
                     }, ServerConnectEvent.Reason.PLUGIN);

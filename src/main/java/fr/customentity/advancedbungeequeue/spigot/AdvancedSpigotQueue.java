@@ -41,7 +41,7 @@ public class AdvancedSpigotQueue extends JavaPlugin implements Listener {
     @EventHandler
     public void onLogin(PlayerLoginEvent event) {
         Player player = event.getPlayer();
-        this.socketManager.sendConnectedMessage(player.getUniqueId(), QueueResult.valueOf(event.getResult().name()));
+        this.socketManager.sendConnectionConfirmation(player.getUniqueId(), QueueResult.valueOf(event.getResult().name()));
     }
 
     public SocketManager getSocketManager() {
@@ -60,10 +60,7 @@ public class AdvancedSpigotQueue extends JavaPlugin implements Listener {
                     return true;
                 }
                 String serverName = args[1];
-                ByteArrayDataOutput out = ByteStreams.newDataOutput();
-                out.writeUTF("ExecuteCommand");
-                out.writeUTF("queue join " + serverName);
-                player.sendPluginMessage(this, "AdvancedBungeeQueue", out.toByteArray());
+                this.socketManager.sendCommandToExecute(player.getUniqueId(), "queue join " + serverName);
             }
         }
         return false;

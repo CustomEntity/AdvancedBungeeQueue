@@ -4,14 +4,14 @@ import java.util.UUID;
 
 public abstract class PlayerAction extends Action<UUID> {
 
-    private UUID uuid;
+    private String uuid;
 
     public PlayerAction(UUID uuid) {
-        this.uuid = uuid;
+        this.uuid = uuid.toString();
     }
 
-    public UUID getUniqueId() {
-        return uuid;
+    public UUID getSenderUniqueId() {
+        return UUID.fromString(uuid);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package fr.customentity.advancedbungeequeue.common.actions;
 
-public abstract class Action<T> {
+import java.io.Serializable;
+
+public abstract class Action<T> implements Serializable {
 
     public abstract Class<T> getEntryType();
 

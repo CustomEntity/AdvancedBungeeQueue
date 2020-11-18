@@ -5,6 +5,7 @@ import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.logging.Level;
 
 public class SocketManager {
@@ -33,6 +34,7 @@ public class SocketManager {
                     }
 
                 } catch (IOException e) {
+                    if(e.getMessage().contains("Socket closed"))return;
                     e.printStackTrace();
                 }
             });

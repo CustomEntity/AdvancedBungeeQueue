@@ -1,16 +1,10 @@
 package fr.customentity.advancedbungeequeue.bungee.socket;
 
 import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
-import fr.customentity.advancedbungeequeue.spigot.AdvancedSpigotQueue;
-import net.md_5.bungee.api.ProxyServer;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.UUID;
 import java.util.logging.Level;
 
 public class SocketManager {

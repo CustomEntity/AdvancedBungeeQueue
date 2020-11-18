@@ -83,7 +83,6 @@ public class QueueManager {
         QueuedPlayer queuedPlayer = new QueuedPlayer(proxiedPlayer, serverInfo, getPriority(proxiedPlayer));
         QueuedPlayer.getQueuedPlayerSet().add(queuedPlayer);
 
-
         boolean added = false;
         for (QueuedPlayer player : queuedPlayers) {
             if (player.getPriority().getPriority() < queuedPlayer.getPriority().getPriority()) {

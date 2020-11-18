@@ -3,14 +3,10 @@ package fr.customentity.advancedbungeequeue.bungee.socket;
 import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import fr.customentity.advancedbungeequeue.bungee.data.QueuedPlayer;
 import fr.customentity.advancedbungeequeue.common.QueueResult;
-import fr.customentity.advancedbungeequeue.spigot.AdvancedSpigotQueue;
-import net.md_5.bungee.api.ProxyServer;
-import net.md_5.bungee.api.scheduler.TaskScheduler;
-import org.bukkit.Bukkit;
 
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Proxy;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,7 +31,6 @@ public class ServerThread extends Thread {
             if(plugin.getConfigFile().getString("socket-password").equals(passwd)) {
                 UUID uuid = UUID.fromString(reader.readUTF());
                 QueueResult result = QueueResult.valueOf(reader.readUTF());
-
                 Optional<QueuedPlayer> queuedPlayer = QueuedPlayer.get(uuid);
                 if (result == QueueResult.ALLOWED) {
                     queuedPlayer.ifPresent(queuedPlayer1 -> plugin.getQueueManager().removePlayerFromQueue(queuedPlayer1));

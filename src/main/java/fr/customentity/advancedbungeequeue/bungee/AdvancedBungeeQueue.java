@@ -134,9 +134,7 @@ public class AdvancedBungeeQueue extends Plugin {
     public void onDisable() {
         try {
             this.getSocketManager().getSocket().close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        } catch (IOException ignored) {}
     }
 
     public Configuration getConfigFile() {

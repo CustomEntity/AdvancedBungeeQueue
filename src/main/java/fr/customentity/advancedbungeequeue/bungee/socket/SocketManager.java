@@ -18,7 +18,7 @@ public class SocketManager {
     }
 
     public void initListener() {
-        int port = plugin.getConfigFile().getInt("socket-port");
+        int port = plugin.getConfigFile().getInt("socket-port", 1233);
         try {
             plugin.log(Level.INFO, "Trying to connect on port " + port + "...");
             socket = new ServerSocket(port);

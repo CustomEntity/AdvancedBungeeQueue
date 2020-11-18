@@ -42,8 +42,6 @@ public class AdvancedBungeeQueue extends Plugin {
         this.getProxy().getPluginManager().registerCommand(this, new QueueCommand(this));
         this.getProxy().getPluginManager().registerListener(this, new QueueListener(this));
 
-        this.getProxy().registerChannel("AdvancedBungeeQueue");
-
         this.getProxy().getScheduler().schedule(this, () -> queueManager.getQueues().forEach((serverInfo, queuedPlayers) -> queuedPlayers.forEach(queuedPlayer -> this.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.repeating-position-message",
                 "%all%", queuedPlayers.size() + "",
                 "%position%", queuedPlayers.indexOf(queuedPlayer) + 1 + "",

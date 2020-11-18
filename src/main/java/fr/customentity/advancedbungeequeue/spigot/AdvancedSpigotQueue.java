@@ -25,7 +25,6 @@ public class AdvancedSpigotQueue extends JavaPlugin implements Listener {
 
         Bukkit.getPluginManager().registerEvents(this, this);
 
-        Bukkit.getMessenger().registerOutgoingPluginChannel(this, "AdvancedBungeeQueue");
         this.socketManager = new SocketManager(this);
     }
 

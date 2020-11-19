@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 public class SocketManager {
@@ -13,8 +15,12 @@ public class SocketManager {
     ServerSocket socket;
     private AdvancedBungeeQueue plugin;
 
+    private ExecutorService cachedExecutorService;
+
     public SocketManager(AdvancedBungeeQueue plugin) {
         this.plugin = plugin;
+
+        this.cachedExecutorService = Executors.newCachedThreadPool();
     }
 
     public void initListener() {
@@ -29,8 +35,7 @@ public class SocketManager {
                         Socket client = socket.accept();
                         client.setKeepAlive(true);
 
-                        ServerThread serverThread = new ServerThread(plugin, client);
-                        serverThread.start();
+                        this.cachedExecutorService.submit(new ServerThread(plugin, client));
                     }
 
                 } catch (IOException e) {

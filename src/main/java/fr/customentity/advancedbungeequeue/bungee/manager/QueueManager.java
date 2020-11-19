@@ -4,14 +4,18 @@ import fr.customentity.advancedbungeequeue.bungee.AdvancedBungeeQueue;
 import fr.customentity.advancedbungeequeue.bungee.data.Priority;
 import fr.customentity.advancedbungeequeue.bungee.data.QueuedPlayer;
 import fr.customentity.advancedbungeequeue.bungee.runnable.ConnectRunnable;
-import fr.customentity.advancedbungeequeue.common.QueueResult;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 
-import java.net.InetSocketAddress;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 public class QueueManager {
@@ -20,7 +24,6 @@ public class QueueManager {
 
     private ConcurrentHashMap<ServerInfo, List<QueuedPlayer>> queue;
     private ScheduledExecutorService scheduledExecutorService;
-    private List<ScheduledFuture<?>> scheduledFutures;
 
     private boolean paused = false;
     private boolean enabled = true;
@@ -28,16 +31,15 @@ public class QueueManager {
     public QueueManager(AdvancedBungeeQueue plugin) {
         this.plugin = plugin;
         this.queue = new ConcurrentHashMap<>();
-        this.scheduledExecutorService = new ScheduledThreadPoolExecutor(plugin.getConfigFile().getInt("thread-pool-size"));
-        this.scheduledFutures = new ArrayList<>();
 
         this.startQueue();
     }
 
     public void startQueue() {
         this.loadServersQueue();
+        this.scheduledExecutorService = Executors.newScheduledThreadPool(queue.keySet().size());
         for (ServerInfo serverInfo : queue.keySet()) {
-            this.scheduledFutures.add(this.scheduledExecutorService.scheduleAtFixedRate(new ConnectRunnable(plugin, serverInfo), this.plugin.getConfigFile().getLong("queue-speed"), this.plugin.getConfigFile().getLong("queue-speed"), TimeUnit.MILLISECONDS));
+            this.scheduledExecutorService.scheduleAtFixedRate(new ConnectRunnable(plugin, serverInfo), this.plugin.getConfigFile().getLong("queue-speed"), this.plugin.getConfigFile().getLong("queue-speed"), TimeUnit.MILLISECONDS);
         }
     }
 
@@ -50,10 +52,18 @@ public class QueueManager {
     }
 
     public void setEnabled(boolean enabled) {
-        if (!enabled) {
+        if (this.enabled && !enabled) {
             queue.clear();
-            this.scheduledFutures.forEach(scheduledFuture -> scheduledFuture.cancel(true));
-        } else {
+            Thread thread = new Thread(() -> {
+                this.scheduledExecutorService.shutdown();
+                try {
+                    this.scheduledExecutorService.awaitTermination(5, TimeUnit.SECONDS);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.start();
+        } else if (!this.enabled && enabled) {
             this.startQueue();
         }
         this.enabled = enabled;

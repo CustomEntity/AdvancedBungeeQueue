@@ -16,7 +16,7 @@ import java.net.Socket;
 import java.util.Optional;
 import java.util.UUID;
 
-public class ServerThread extends Thread {
+public class ServerThread implements Runnable {
 
     private AdvancedBungeeQueue plugin;
     private Socket client;
@@ -62,8 +62,6 @@ public class ServerThread extends Thread {
             in.close();
             reader.close();
             client.close();
-
-            this.interrupt();
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }

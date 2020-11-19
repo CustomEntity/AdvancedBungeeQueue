@@ -6,7 +6,6 @@ player-amount: 2
 socket-host: localhost
 socket-port: 1233
 socket-password: "TOABSOLUTELYCHANGE"
-thread-pool-size: 4
 use-same-queue: false
 default-servers:
   - "lobby"

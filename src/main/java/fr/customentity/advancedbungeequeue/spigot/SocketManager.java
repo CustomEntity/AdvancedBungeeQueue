@@ -48,7 +48,7 @@ public class SocketManager {
         Thread thread = new Thread(() -> {
             Socket client;
             try {
-                client = new Socket("localhost", plugin.getConfig().getInt("socket-port"));
+                client = new Socket(plugin.getConfig().getString("socket-host", "localhost"), plugin.getConfig().getInt("socket-port"));
                 OutputStream out = client.getOutputStream();
                 ObjectOutputStream writer = new ObjectOutputStream(out);
                 writer.writeUTF(plugin.getConfig().getString("socket-password", "TOABSOLUTELYCHANGE"));

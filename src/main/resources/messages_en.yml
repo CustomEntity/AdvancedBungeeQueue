@@ -11,21 +11,22 @@ help:
   - "&6«&6&m-&e&m-----------------------------------------&6&m-&6»"
 commands:
   no-permission: "%prefix% &cYou don't have permission to execute that &ccommand !"
-  join:
+  join-command:
     syntax: "%prefix% &cPlease use: /queue join <server>"
     success: "%prefix% &eYou have successfully joined the queue! You &eare currently &6%position%&7/&6%all% &ein the queue. &bPriority: &6%priority%"
     cannot-join-queue: "%prefix% &cYou cannot join queue in this server!"
     server-doesnt-exist: "%prefix% &cServer doesn't exist"
-  on:
+    server-not-queued: "%prefix% You cannot join the queue of this server !"
+  on-command:
     success: "%prefix% &eThe queue has been &aenabled&e!"
     error: "%prefix% &cThe queue is already enabled!"
-  off:
+  off-command:
     success: "%prefix% &eThe queue has been &cdisabled&e!"
     error: "%prefix% &cThe queue is already &cdisabled!"
-  pause:
+  pause-command:
     success: "%prefix% &eThe queue has been paused!"
     error: "%prefix% &cThe queue is already paused!"
-  unpause:
+  unpause-command:
     success: "%prefix% &eThe queue has been unpaused!"
     error: "%prefix% &cThe queue is already unpaused!"
 general:

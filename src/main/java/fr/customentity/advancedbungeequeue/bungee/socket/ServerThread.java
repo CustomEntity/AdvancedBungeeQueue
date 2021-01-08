@@ -8,13 +8,13 @@ import fr.customentity.advancedbungeequeue.common.actions.PlayerAction;
 import fr.customentity.advancedbungeequeue.common.actions.all.ConfirmConnectionAction;
 import fr.customentity.advancedbungeequeue.common.actions.all.ExecuteCommandAction;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.protocol.packet.Chat;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 import java.util.Optional;
-import java.util.UUID;
 
 public class ServerThread implements Runnable {
 
@@ -33,11 +33,11 @@ public class ServerThread implements Runnable {
             ObjectInputStream reader = new ObjectInputStream(in);
 
             String passwd = reader.readUTF();
-            if(plugin.getConfigFile().getString("socket-password").equals(passwd)) {
+            if (plugin.getConfigFile().getString("socket-password").equals(passwd)) {
                 Action<?> action = (Action<?>) reader.readObject();
                 if (action instanceof PlayerAction) {
-                    if(action instanceof ConfirmConnectionAction) {
-                        ConfirmConnectionAction confirmConnectionAction = (ConfirmConnectionAction)action;
+                    if (action instanceof ConfirmConnectionAction) {
+                        ConfirmConnectionAction confirmConnectionAction = (ConfirmConnectionAction) action;
                         QueueResult result = confirmConnectionAction.getQueueResult();
                         Optional<QueuedPlayer> queuedPlayer = QueuedPlayer.get(confirmConnectionAction.getSenderUniqueId());
                         if (result == QueueResult.ALLOWED) {
@@ -51,8 +51,8 @@ public class ServerThread implements Runnable {
                         } else if (result == QueueResult.KICK_OTHER) {
                             queuedPlayer.ifPresent(queuedPlayer1 -> plugin.sendConfigMessage(queuedPlayer1.getProxiedPlayer(), "general.kick-unavailable-server"));
                         }
-                    } else if(action instanceof ExecuteCommandAction) {
-                        ExecuteCommandAction executeCommandAction = (ExecuteCommandAction)action;
+                    } else if (action instanceof ExecuteCommandAction) {
+                        ExecuteCommandAction executeCommandAction = (ExecuteCommandAction) action;
                         ProxiedPlayer proxiedPlayer = plugin.getProxy().getPlayer(executeCommandAction.getSenderUniqueId());
                         plugin.getProxy().getPluginManager().dispatchCommand(proxiedPlayer, executeCommandAction.getCommand());
                     }

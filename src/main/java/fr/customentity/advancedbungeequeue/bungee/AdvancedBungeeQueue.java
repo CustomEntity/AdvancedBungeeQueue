@@ -46,7 +46,7 @@ public class AdvancedBungeeQueue extends Plugin {
                 "%all%", queuedPlayers.size() + "",
                 "%position%", queuedPlayers.indexOf(queuedPlayer) + 1 + "",
                 "%priority%", queuedPlayer.getPriority().getName()
-        ))), 1, 1, TimeUnit.SECONDS);
+        ))), 1, getConfigFile().getInt("remember-queue-position-delay", 1), TimeUnit.SECONDS);
 
         this.socketManager = new SocketManager(this);
         this.socketManager.initListener();

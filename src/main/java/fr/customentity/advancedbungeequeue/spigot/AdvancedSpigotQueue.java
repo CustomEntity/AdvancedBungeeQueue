@@ -4,6 +4,7 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import fr.customentity.advancedbungeequeue.common.QueueResult;
 import fr.customentity.advancedbungeequeue.bungee.i18n.I18n;
+import net.md_5.bungee.api.event.ServerKickEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;

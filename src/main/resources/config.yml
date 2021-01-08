@@ -5,6 +5,7 @@ queue-speed: 2000
 player-amount: 2
 socket-host: localhost
 socket-port: 1233
+remember-queue-position-delay: 1
 socket-password: "TOABSOLUTELYCHANGE"
 use-same-queue: false
 default-servers:

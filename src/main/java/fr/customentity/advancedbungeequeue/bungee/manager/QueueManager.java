@@ -54,6 +54,7 @@ public class QueueManager {
     public void setEnabled(boolean enabled) {
         if (this.enabled && !enabled) {
             queue.clear();
+            QueuedPlayer.getQueuedPlayerSet().clear();
             Thread thread = new Thread(() -> {
                 this.scheduledExecutorService.shutdown();
                 try {
@@ -110,7 +111,13 @@ public class QueueManager {
     }
 
     public void removePlayerFromQueue(QueuedPlayer queuedPlayer) {
-        queue.get(queuedPlayer.getTargetServer()).remove(queuedPlayer);
+        ServerInfo targetServer = queuedPlayer.getTargetServer();
+
+        if (this.plugin.getConfigFile().getBoolean("use-same-queue"))
+            targetServer = queue.keySet().stream().findFirst().get();
+
+        if(!queue.containsKey(targetServer))return;
+        queue.get(targetServer).remove(queuedPlayer);
         QueuedPlayer.getQueuedPlayerSet().remove(queuedPlayer);
     }
 
@@ -138,7 +145,7 @@ public class QueueManager {
             if (i >= queuedPlayers.size()) return;
             QueuedPlayer queuedPlayer = queuedPlayers.get(i);
             if (queuedPlayer == null) continue;
-            serverInfo.ping((serverPing, pingError) -> {
+            queuedPlayer.getTargetServer().ping((serverPing, pingError) -> {
                 if (serverPing == null) {
                     plugin.sendConfigMessage(queuedPlayer.getProxiedPlayer(), "general.kick-unavailable-server");
                 } else {
@@ -152,7 +159,7 @@ public class QueueManager {
                         return;
                     }
                     queuedPlayer.setConnecting(true);
-                    queuedPlayer.getProxiedPlayer().connect(serverInfo, (result, error) -> {
+                    queuedPlayer.getProxiedPlayer().connect(queuedPlayer.getTargetServer(), (result, error) -> {
                         if (!result) {
                             queuedPlayer.setConnecting(false);
                         }
@@ -169,7 +176,7 @@ public class QueueManager {
             if (serverInfo != null) {
                 queue.putIfAbsent(serverInfo, Collections.synchronizedList(new ArrayList<>()));
                 plugin.log(Level.INFO, "Queue enabled for server: " + serverInfo.getName());
-                if (!this.plugin.getConfigFile().getBoolean("use-same-queue")) break;
+                if (this.plugin.getConfigFile().getBoolean("use-same-queue")) break;
             }
         }
     }

@@ -76,8 +76,9 @@ public class YamlResourceBundle {
     }
 
     public String getString(String path, boolean useCacheIfPresent) {
-        if (useCacheIfPresent)
+        if (useCacheIfPresent) {
             return cachedResourceContent.getOrDefault(path, Collections.singletonList(yamlConfig.getString(path))).get(0);
+        }
         return yamlConfig.getString(path);
     }
 

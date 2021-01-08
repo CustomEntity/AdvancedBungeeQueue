@@ -28,13 +28,18 @@ public class QueueCommand extends Command {
                 if (!(sender instanceof ProxiedPlayer)) return;
                 ProxiedPlayer proxiedPlayer = (ProxiedPlayer) sender;
                 if (args.length != 2) {
-                    plugin.sendConfigMessage(proxiedPlayer, "commands.join.syntax");
+                    plugin.sendConfigMessage(proxiedPlayer, "commands.join-command.syntax");
                     return;
                 }
                 String serverName = args[1];
                 ServerInfo serverInfo = plugin.getProxy().getServerInfo(serverName);
                 if (serverInfo == null) {
-                    plugin.sendConfigMessage(proxiedPlayer, "commands.join.server-doesnt-exist");
+                    plugin.sendConfigMessage(proxiedPlayer, "commands.join-command.server-doesnt-exist");
+                    return;
+                }
+
+                if(!this.plugin.getConfigFile().getStringList("queued-servers").contains(serverInfo.getName())) {
+                    plugin.sendConfigMessage(proxiedPlayer, "commands.join-command.server-not-queued");
                     return;
                 }
 
@@ -45,44 +50,44 @@ public class QueueCommand extends Command {
                     return;
                 }
                 if (plugin.getQueueManager().isEnabled()) {
-                    plugin.sendConfigMessage(sender, "commands.on.error");
+                    plugin.sendConfigMessage(sender, "commands.on-command.error");
                     return;
                 }
                 plugin.getQueueManager().setEnabled(true);
-                plugin.sendConfigMessage(sender, "commands.on.success");
+                plugin.sendConfigMessage(sender, "commands.on-command.success");
             } else if (args[0].equalsIgnoreCase("off")) {
                 if (!sender.hasPermission(plugin.getConfigFile().getString("permissions.off-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
                 if (!plugin.getQueueManager().isEnabled()) {
-                    plugin.sendConfigMessage(sender, "commands.off.error");
+                    plugin.sendConfigMessage(sender, "commands.off-command.error");
                     return;
                 }
                 plugin.getQueueManager().setEnabled(false);
-                plugin.sendConfigMessage(sender, "commands.off.success");
+                plugin.sendConfigMessage(sender, "commands.off-command.success");
             } else if (args[0].equalsIgnoreCase("pause")) {
                 if (!sender.hasPermission(plugin.getConfigFile().getString("permissions.pause-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
                 if (plugin.getQueueManager().isPaused()) {
-                    plugin.sendConfigMessage(sender, "commands.pause.error");
+                    plugin.sendConfigMessage(sender, "commands.pause-command.error");
                     return;
                 }
                 plugin.getQueueManager().setPaused(true);
-                plugin.sendConfigMessage(sender, "commands.pause.success");
+                plugin.sendConfigMessage(sender, "commands.pause-command.success");
             } else if (args[0].equalsIgnoreCase("unpause")) {
                 if (!sender.hasPermission(plugin.getConfigFile().getString("permissions.unpause-queue-command"))) {
                     plugin.sendConfigMessage(sender, "commands.no-permission");
                     return;
                 }
                 if (!plugin.getQueueManager().isPaused()) {
-                    plugin.sendConfigMessage(sender, "commands.unpause.error");
+                    plugin.sendConfigMessage(sender, "commands.unpause-command.error");
                     return;
                 }
                 plugin.getQueueManager().setPaused(false);
-                plugin.sendConfigMessage(sender, "commands.unpause.success");
+                plugin.sendConfigMessage(sender, "commands.unpause-command.success");
             }
         }
     }
